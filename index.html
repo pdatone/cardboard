@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>紙盒裁切計算機</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    input[type=number]:focus { border-color: #8a9e78 !important; }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { opacity: 0.4; }
+  </style>
+</head>
+<body class="min-h-screen" style="background:#d8e0cf">
+
+<div class="max-w-screen-xl mx-auto p-4 pb-12 lg:p-6 lg:pb-16">
+  <div class="flex flex-col lg:flex-row lg:gap-6 lg:items-start">
+
+    <!-- ════════════════════════════════
+         左欄：標題 + 輸入 + 換算表
+         ════════════════════════════════ -->
+    <div class="w-full lg:w-80 xl:w-96 lg:flex-shrink-0 space-y-4 lg:sticky lg:top-6">
+
+      <!-- Header -->
+      <div class="text-center pt-2 pb-1 lg:text-left lg:pt-4">
+        <h1 class="text-xl lg:text-2xl font-bold tracking-wide" style="color:#3a3422">紙盒裁切計算機</h1>
+        <p class="text-xs mt-0.5 lg:mt-1" style="color:#8c9c78">方盒 · 輸入尺寸自動計算裁切大小</p>
+      </div>
+
+      <!-- Inputs -->
+      <div class="rounded-2xl p-4 shadow-sm space-y-3" style="background:#f0ebe0">
+        <div class="flex rounded-xl p-1 text-sm gap-1" style="background:#c8d0b8">
+          <button id="btn-ext" onclick="setMode('external')"
+            class="flex-1 py-2 rounded-lg font-semibold shadow-sm transition-all" style="background:#fffdf5;color:#3a3422">外部尺寸</button>
+          <button id="btn-int" onclick="setMode('internal')"
+            class="flex-1 py-2 rounded-lg font-semibold transition-all" style="color:#8a9e78">內部尺寸</button>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="block">
+            <span id="label-L" class="text-xs font-medium" style="color:#7a8860">長 L（外部）</span>
+            <input id="inp-L" type="number" value="100" min="1" oninput="calc()"
+              class="mt-1 w-full rounded-xl px-3 py-2.5 text-lg font-bold focus:outline-none transition-colors"
+              style="border:1.5px solid #c0c8a4;color:#3a3422;background:#faf6e8;" />
+          </label>
+          <label class="block">
+            <span id="label-W" class="text-xs font-medium" style="color:#7a8860">寬 W（外部）</span>
+            <input id="inp-W" type="number" value="50" min="1" oninput="calc()"
+              class="mt-1 w-full rounded-xl px-3 py-2.5 text-lg font-bold focus:outline-none transition-colors"
+              style="border:1.5px solid #c0c8a4;color:#3a3422;background:#faf6e8;" />
+          </label>
+          <label class="block">
+            <span id="label-H" class="text-xs font-medium" style="color:#7a8860">高 H（外部）</span>
+            <input id="inp-H" type="number" value="60" min="1" oninput="calc()"
+              class="mt-1 w-full rounded-xl px-3 py-2.5 text-lg font-bold focus:outline-none transition-colors"
+              style="border:1.5px solid #c0c8a4;color:#3a3422;background:#faf6e8;" />
+          </label>
+          <label class="block">
+            <span class="text-xs font-medium" style="color:#7a8860">厚度 T</span>
+            <input id="inp-T" type="number" value="3" min="1" step="0.5" oninput="calc()"
+              class="mt-1 w-full rounded-xl px-3 py-2.5 text-lg font-bold focus:outline-none transition-colors"
+              style="border:1.5px solid #c0c8a4;color:#3a3422;background:#faf6e8;" />
+          </label>
+        </div>
+        <p class="text-xs text-center" style="color:#a8b890">單位一致即可（mm、cm 皆可）</p>
+      </div>
+
+      <!-- Conversion table -->
+      <div class="rounded-2xl p-4 shadow-sm" style="background:#f0ebe0">
+        <p class="text-xs font-semibold uppercase tracking-wider mb-3" style="color:#7a8860">尺寸換算</p>
+        <div class="grid grid-cols-3 gap-x-2 gap-y-1 text-center">
+          <div></div>
+          <div class="text-xs font-medium pb-1" style="color:#7a8860">外部</div>
+          <div class="text-xs font-medium pb-1" style="color:#7a8860">內部</div>
+
+          <div class="font-medium text-sm self-center text-left py-1" style="color:#6a7850">長</div>
+          <div class="py-1">
+            <div class="text-lg font-bold leading-tight" style="color:#3a3422" id="ext-L">—</div>
+            <div class="text-xs" style="color:#9aaa82" id="ext-L-f"></div>
+          </div>
+          <div class="py-1">
+            <div class="text-lg font-bold leading-tight" style="color:#3a3422" id="int-L">—</div>
+            <div class="text-xs" style="color:#9aaa82" id="int-L-f"></div>
+          </div>
+
+          <div class="font-medium text-sm self-center text-left py-1" style="color:#6a7850">寬</div>
+          <div class="py-1">
+            <div class="text-lg font-bold leading-tight" style="color:#3a3422" id="ext-W">—</div>
+            <div class="text-xs" style="color:#9aaa82" id="ext-W-f"></div>
+          </div>
+          <div class="py-1">
+            <div class="text-lg font-bold leading-tight" style="color:#3a3422" id="int-W">—</div>
+            <div class="text-xs" style="color:#9aaa82" id="int-W-f"></div>
+          </div>
+
+          <div class="font-medium text-sm self-center text-left py-1" style="color:#6a7850">高</div>
+          <div class="py-1">
+            <div class="text-lg font-bold leading-tight" style="color:#3a3422" id="ext-H">—</div>
+            <div class="text-xs" style="color:#9aaa82" id="ext-H-f"></div>
+          </div>
+          <div class="py-1">
+            <div class="text-lg font-bold leading-tight" style="color:#3a3422" id="int-H">—</div>
+            <div class="text-xs" style="color:#9aaa82" id="int-H-f"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /左欄 -->
+
+    <!-- ════════════════════════════════
+         右欄：裁切圖
+         手機：單欄堆疊
+         桌面：上下紙板全寬，底板+左右並排
+         ════════════════════════════════ -->
+    <div class="flex-1 mt-4 lg:mt-0 grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <!-- 底板：桌面佔滿兩欄 -->
+      <div class="rounded-2xl shadow-sm overflow-hidden md:col-span-2" style="background:#f0ebe0">
+        <div class="flex items-center justify-between px-4 py-3" style="border-bottom:1px solid #c4ccb0">
+          <span class="font-bold" style="color:#3a3422">底板</span>
+          <span class="text-xs font-semibold rounded-full px-3 py-1" style="background:#c8d0b8;color:#5c6440">× 1 片</span>
+        </div>
+        <div class="p-4">
+          <div id="svg-bp" class="w-full"></div>
+        </div>
+        <div class="flex items-center gap-2 px-4 pb-4 text-sm">
+          <span style="color:#7a8860">寬</span>
+          <span class="font-bold" style="color:#3a3422" id="bp-w">—</span>
+          <span class="text-xs" style="color:#9aaa82" id="bp-w-f"></span>
+          <span class="mx-1 text-xs" style="color:#bcc4a4">|</span>
+          <span style="color:#7a8860">高</span>
+          <span class="font-bold" style="color:#3a3422" id="bp-h">—</span>
+          <span class="text-xs" style="color:#9aaa82" id="bp-h-f"></span>
+        </div>
+      </div>
+
+      <!-- 上下紙板 -->
+      <div class="rounded-2xl shadow-sm overflow-hidden" style="background:#f0ebe0">
+        <div class="flex items-center justify-between px-4 py-3" style="border-bottom:1px solid #c4ccb0">
+          <span class="font-bold" style="color:#3a3422">上下紙板</span>
+          <span class="text-xs font-semibold rounded-full px-3 py-1" style="background:#c8d0b8;color:#5c6440">× 2 片</span>
+        </div>
+        <div class="p-4">
+          <div id="svg-tb" class="w-full"></div>
+        </div>
+        <div class="flex items-center gap-2 px-4 pb-4 text-sm">
+          <span style="color:#7a8860">寬</span>
+          <span class="font-bold" style="color:#3a3422" id="tb-w">—</span>
+          <span class="text-xs" style="color:#9aaa82" id="tb-w-f"></span>
+          <span class="mx-1 text-xs" style="color:#bcc4a4">|</span>
+          <span style="color:#7a8860">高</span>
+          <span class="font-bold" style="color:#3a3422" id="tb-h">—</span>
+          <span class="text-xs" style="color:#9aaa82" id="tb-h-f"></span>
+        </div>
+      </div>
+
+      <!-- 左右紙板 -->
+      <div class="rounded-2xl shadow-sm overflow-hidden" style="background:#f0ebe0">
+        <div class="flex items-center justify-between px-4 py-3" style="border-bottom:1px solid #c4ccb0">
+          <span class="font-bold" style="color:#3a3422">左右紙板</span>
+          <span class="text-xs font-semibold rounded-full px-3 py-1" style="background:#c8d0b8;color:#5c6440">× 2 片</span>
+        </div>
+        <div class="p-4">
+          <div id="svg-sp" class="w-full"></div>
+        </div>
+        <div class="flex items-center gap-2 px-4 pb-4 text-sm">
+          <span style="color:#7a8860">寬</span>
+          <span class="font-bold" style="color:#3a3422" id="sp-w">—</span>
+          <span class="text-xs" style="color:#9aaa82" id="sp-w-f"></span>
+          <span class="mx-1 text-xs" style="color:#bcc4a4">|</span>
+          <span style="color:#7a8860">高</span>
+          <span class="font-bold" style="color:#3a3422" id="sp-h">—</span>
+          <span class="text-xs" style="color:#9aaa82" id="sp-h-f"></span>
+        </div>
+      </div>
+
+    </div><!-- /右欄 -->
+
+  </div>
+</div>
+
+<script>
+  let mode = 'external';
+
+  function setMode(m) {
+    mode = m;
+    const btnExt = document.getElementById('btn-ext');
+    const btnInt = document.getElementById('btn-int');
+    if (m === 'external') {
+      btnExt.style.cssText = 'background:#fffdf5;color:#3a3422';
+      btnExt.className = 'flex-1 py-2 rounded-lg font-semibold shadow-sm transition-all';
+      btnInt.style.cssText = 'color:#8a9e78';
+      btnInt.className = 'flex-1 py-2 rounded-lg font-semibold transition-all';
+    } else {
+      btnInt.style.cssText = 'background:#fffdf5;color:#3a3422';
+      btnInt.className = 'flex-1 py-2 rounded-lg font-semibold shadow-sm transition-all';
+      btnExt.style.cssText = 'color:#8a9e78';
+      btnExt.className = 'flex-1 py-2 rounded-lg font-semibold transition-all';
+    }
+    document.getElementById('label-L').textContent = m === 'external' ? '長 L（外部）' : '長 IL（內部）';
+    document.getElementById('label-W').textContent = m === 'external' ? '寬 W（外部）' : '寬 IW（內部）';
+    document.getElementById('label-H').textContent = m === 'external' ? '高 H（外部）' : '高 IH（內部）';
+    calc();
+  }
+
+  function fmt(n) {
+    return parseFloat(n.toFixed(1)).toString();
+  }
+
+  function calc() {
+    const T  = parseFloat(document.getElementById('inp-T').value) || 3;
+    const v1 = parseFloat(document.getElementById('inp-L').value) || 0;
+    const v2 = parseFloat(document.getElementById('inp-W').value) || 0;
+    const v3 = parseFloat(document.getElementById('inp-H').value) || 0;
+
+    let L, W, H, iL, iW, iH;
+    if (mode === 'external') {
+      L = v1; W = v2; H = v3;
+      iL = L - 2*(2*T - 1);
+      iW = W - 2*(2*T - 1);
+      iH = H - T + 1;
+    } else {
+      iL = v1; iW = v2; iH = v3;
+      L = iL + 4*T - 1;
+      W = iW + 4*T - 1;
+      H = iH + T;
+    }
+
+    set('ext-L', fmt(L), ''); set('ext-W', fmt(W), ''); set('ext-H', fmt(H), '');
+    set('int-L', fmt(iL), mode==='external' ? 'L−2(2T−1)' : '');
+    set('int-W', fmt(iW), mode==='external' ? 'W−2(2T−1)' : '');
+    set('int-H', fmt(iH), mode==='external' ? 'H−T+1' : '');
+    document.getElementById('ext-L-f').textContent = mode==='internal' ? 'IL+4T−1' : '';
+    document.getElementById('ext-W-f').textContent = mode==='internal' ? 'IW+4T−1' : '';
+    document.getElementById('ext-H-f').textContent = mode==='internal' ? 'IH+T' : '';
+
+    const tb_w = L + 2*T,  tb_h = 2*H + 2*T;
+    const bp_w = L + 2*T,  bp_h = W;
+    const sp_w = W,         sp_h = 2*H + T;
+
+    set('tb-w', fmt(tb_w), 'L+2T'); set('tb-h', fmt(tb_h), '2H+2T');
+    set('bp-w', fmt(bp_w), 'L+2T'); set('bp-h', fmt(bp_h), 'W');
+    set('sp-w', fmt(sp_w), 'W');    set('sp-h', fmt(sp_h), '2H+T');
+
+    document.getElementById('svg-tb').innerHTML = svgTopBottom(L, H, T);
+    document.getElementById('svg-bp').innerHTML = svgBottomPanel(L, W, T);
+    document.getElementById('svg-sp').innerHTML = svgSidePanel(W, H, T);
+  }
+
+  function set(id, val, formula) {
+    document.getElementById(id).textContent = val;
+    const f = document.getElementById(id + '-f');
+    if (f) f.textContent = formula;
+  }
+
+  // ─── shared helpers ──────────────────────────────────────────────────────────
+
+  function annotate(p, { axis, annots, ox, oy, cutW, cutH, fs, sw, rightEdgeFn=null, side='top' }) {
+    const extLen  = fs * 0.9;
+    const bktOff  = fs * 0.25;
+    const bktTick = fs * 0.38;
+    const lblGap  = fs * 0.28;
+    const sw2     = sw * 1.1;
+    const font    = `font-family="system-ui,sans-serif"`;
+
+    if (axis === 'col') {
+      const bottom = side === 'bottom';
+      const bktY = bottom ? oy + cutH + extLen + bktOff : oy - extLen - bktOff;
+      const bounds = [...new Set(annots.flatMap(a=>[a.x1,a.x2]).filter(x=>x>0&&x<cutW))];
+      for (const x of bounds) {
+        const [ly1, ly2] = bottom ? [oy+cutH, oy+cutH+extLen] : [oy, oy-extLen];
+        p.push(`<line x1="${ox+x}" y1="${ly1}" x2="${ox+x}" y2="${ly2}" stroke="#6a7850" stroke-width="${sw*0.8}"/>`);
+      }
+      for (const {x1,x2,val} of annots) {
+        const ax1=ox+x1, ax2=ox+x2, cx=(ax1+ax2)/2;
+        p.push(`<line x1="${ax1}" y1="${bktY}" x2="${ax2}" y2="${bktY}" stroke="#4e6038" stroke-width="${sw2}"/>`);
+        p.push(`<line x1="${ax1}" y1="${bktY-bktTick}" x2="${ax1}" y2="${bktY+bktTick}" stroke="#4e6038" stroke-width="${sw2}"/>`);
+        p.push(`<line x1="${ax2}" y1="${bktY-bktTick}" x2="${ax2}" y2="${bktY+bktTick}" stroke="#4e6038" stroke-width="${sw2}"/>`);
+        const textY = bottom ? bktY + bktTick + lblGap : bktY - bktTick - lblGap;
+        const baseline = bottom ? 'hanging' : 'auto';
+        p.push(`<text x="${cx}" y="${textY}" font-size="${fs}" fill="#302a18" text-anchor="middle" dominant-baseline="${baseline}" ${font} font-weight="700">${val}</text>`);
+      }
+    } else {
+      const bktX = ox + cutW + extLen + bktOff;
+      const bounds = [...new Set(annots.flatMap(a=>[a.y1,a.y2]).filter(y=>y>0&&y<cutH))];
+      for (const y of bounds) {
+        const rx = rightEdgeFn ? rightEdgeFn(y) : ox+cutW;
+        p.push(`<line x1="${rx}" y1="${oy+y}" x2="${bktX-bktOff}" y2="${oy+y}" stroke="#6a7850" stroke-width="${sw*0.8}"/>`);
+      }
+      for (const {y1,y2,val} of annots) {
+        const ay1=oy+y1, ay2=oy+y2, cy=(ay1+ay2)/2;
+        p.push(`<line x1="${bktX}" y1="${ay1}" x2="${bktX}" y2="${ay2}" stroke="#4e6038" stroke-width="${sw2}"/>`);
+        p.push(`<line x1="${bktX-bktTick}" y1="${ay1}" x2="${bktX+bktTick}" y2="${ay1}" stroke="#4e6038" stroke-width="${sw2}"/>`);
+        p.push(`<line x1="${bktX-bktTick}" y1="${ay2}" x2="${bktX+bktTick}" y2="${ay2}" stroke="#4e6038" stroke-width="${sw2}"/>`);
+        p.push(`<text x="${bktX+bktTick+lblGap}" y="${cy}" font-size="${fs}" fill="#302a18" text-anchor="start" dominant-baseline="middle" ${font} font-weight="700">${val}</text>`);
+      }
+    }
+  }
+
+  function dimLines(p, {ox, oy, cutW, cutH, fs, sw, topWidth=false}) {
+    const font = `font-family="system-ui,sans-serif"`;
+    const tk = sw * 3;
+    const dX = ox - fs * 2.3;
+    if (topWidth) {
+      const dY = oy - fs * 1.7;
+      p.push(`
+        <line x1="${ox}" y1="${dY}" x2="${ox+cutW}" y2="${dY}" stroke="#302a18" stroke-width="${sw*1.3}"/>
+        <line x1="${ox}" y1="${dY-tk}" x2="${ox}" y2="${dY+tk}" stroke="#302a18" stroke-width="${sw*1.3}"/>
+        <line x1="${ox+cutW}" y1="${dY-tk}" x2="${ox+cutW}" y2="${dY+tk}" stroke="#302a18" stroke-width="${sw*1.3}"/>
+        <text x="${ox+cutW/2}" y="${dY-fs*1.15}" font-size="${fs*1.1}" fill="#302a18" text-anchor="middle" dominant-baseline="auto" ${font} font-weight="700">${fmt(cutW)}</text>
+      `);
+    } else {
+      const dY = oy + cutH + fs * 1.7;
+      p.push(`
+        <line x1="${ox}" y1="${dY}" x2="${ox+cutW}" y2="${dY}" stroke="#302a18" stroke-width="${sw*1.3}"/>
+        <line x1="${ox}" y1="${dY-tk}" x2="${ox}" y2="${dY+tk}" stroke="#302a18" stroke-width="${sw*1.3}"/>
+        <line x1="${ox+cutW}" y1="${dY-tk}" x2="${ox+cutW}" y2="${dY+tk}" stroke="#302a18" stroke-width="${sw*1.3}"/>
+        <text x="${ox+cutW/2}" y="${dY+fs*1.15}" font-size="${fs*1.1}" fill="#302a18" text-anchor="middle" ${font} font-weight="700">${fmt(cutW)}</text>
+      `);
+    }
+    p.push(`
+      <line x1="${dX}" y1="${oy}" x2="${dX}" y2="${oy+cutH}" stroke="#302a18" stroke-width="${sw*1.3}"/>
+      <line x1="${dX-tk}" y1="${oy}" x2="${dX+tk}" y2="${oy}" stroke="#302a18" stroke-width="${sw*1.3}"/>
+      <line x1="${dX-tk}" y1="${oy+cutH}" x2="${dX+tk}" y2="${oy+cutH}" stroke="#302a18" stroke-width="${sw*1.3}"/>
+      <text x="${dX}" y="${oy+cutH/2}" font-size="${fs*1.1}" fill="#302a18" text-anchor="middle" dominant-baseline="middle" ${font} font-weight="700" transform="rotate(-90,${dX},${oy+cutH/2})">${fmt(cutH)}</text>
+    `);
+  }
+
+  function hatchDef(id, hsz) {
+    return `<pattern id="${id}" patternUnits="userSpaceOnUse" width="${hsz}" height="${hsz}" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="${hsz}" stroke="#c4b490" stroke-width="${hsz*0.44}"/>
+    </pattern>`;
+  }
+
+  // ─── 上下紙板  T-shape ────────────────────────────────────────────────────────
+  function svgTopBottom(L, H, T) {
+    const cutW = L + 2*T, cutH = 2*H + 2*T;
+    const fs = cutW * 0.055, sw = cutW * 0.007;
+    const hsz = cutW * 0.055;
+
+    const pL = fs*5.5, pT = fs*4, pR = fs*6, pB = fs*3.2;
+    const ox = pL, oy = pT;
+    const vbW = pL+cutW+pR, vbH = pT+cutH+pB;
+
+    // 底部左右各切 T×T 缺口
+    const poly = [
+      [T,0],[L+T,0],
+      [L+T,H+T],[L+2*T,H+T],
+      [L+2*T,2*H+T],[L+T,2*H+T],
+      [L+T,2*H+2*T],[T,2*H+2*T],
+      [T,2*H+T],[0,2*H+T],
+      [0,H+T],[T,H+T]
+    ];
+    const pts = poly.map(([x,y])=>`${ox+x},${oy+y}`).join(' ');
+
+    const p = [];
+    const dash = `${sw*4} ${sw*3}`;
+
+    p.push(`<defs>
+      ${hatchDef('h1', hsz)}
+      <clipPath id="clip1"><polygon points="${pts}"/></clipPath>
+    </defs>`);
+
+    p.push(`<polygon points="${pts}" fill="#faf6e8"/>`);
+
+    p.push(`<rect x="${ox+T}" y="${oy+H-T}" width="${L}" height="${2*T}" fill="url(#h1)" clip-path="url(#clip1)"/>`);
+    p.push(`<rect x="${ox}" y="${oy+H+T}" width="${T}" height="${H+T}" fill="url(#h1)" clip-path="url(#clip1)"/>`);
+    p.push(`<rect x="${ox+L+T}" y="${oy+H+T}" width="${T}" height="${H+T}" fill="url(#h1)" clip-path="url(#clip1)"/>`);
+    p.push(`<rect x="${ox+T}" y="${oy+2*H+T}" width="${L}" height="${T}" fill="url(#h1)" clip-path="url(#clip1)"/>`);
+
+    for (const [x1,y1,x2,y2] of [
+      [0,H-T, cutW,H-T],
+      [T,H+T, T,2*H+2*T],
+      [L+T,H+T, L+T,2*H+2*T],
+      [0,H+T, cutW,H+T],
+      [0,2*H+T, cutW,2*H+T],
+    ])
+      p.push(`<line x1="${ox+x1}" y1="${oy+y1}" x2="${ox+x2}" y2="${oy+y2}" stroke="#90a468" stroke-width="${sw}" stroke-dasharray="${dash}" clip-path="url(#clip1)"/>`);
+
+    p.push(`<polygon points="${pts}" fill="none" stroke="#3c4828" stroke-width="${sw*2}" stroke-linejoin="miter"/>`);
+
+    annotate(p, { axis:'col', annots:[
+      {x1:0,   x2:T,   val:fmt(T)},
+      {x1:T,   x2:L+T, val:fmt(L)},
+      {x1:L+T, x2:L+2*T, val:fmt(T)},
+    ], ox, oy, cutW, cutH, fs, sw, side:'bottom' });
+
+    const rightEdgeFn = y => y <= H+T ? ox+L+T : ox+cutW;
+    annotate(p, { axis:'row', annots:[
+      {y1:0,     y2:H-T,    val:fmt(H-T)},
+      {y1:H-T,   y2:H+T,    val:fmt(2*T)},
+      {y1:H+T,   y2:2*H+T,  val:fmt(H)},
+      {y1:2*H+T, y2:2*H+2*T,val:fmt(T)},
+    ], ox, oy, cutW, cutH, fs, sw, rightEdgeFn });
+
+    dimLines(p, {ox, oy, cutW, cutH, fs, sw, topWidth:true});
+
+    return `<svg viewBox="0 0 ${vbW} ${vbH}" width="100%" xmlns="http://www.w3.org/2000/svg">${p.join('\n')}</svg>`;
+  }
+
+  // ─── 底板  四角切 T×T 缺口 ────────────────────────────────────────────────────
+  function svgBottomPanel(L, W, T) {
+    const cutW = L + 2*T, cutH = W;
+    const fs = cutW * 0.055, sw = cutW * 0.007;
+    const hsz = cutW * 0.055;
+
+    const pL = fs*5.5, pT = fs*4, pR = fs*6, pB = fs*3.2;
+    const ox = pL, oy = pT;
+    const vbW = pL+cutW+pR, vbH = pT+cutH+pB;
+
+    // 四角缺 T×T 的十二邊形
+    const poly = [
+      [T,0],[L+T,0],
+      [L+T,T],[L+2*T,T],
+      [L+2*T,W-T],[L+T,W-T],
+      [L+T,W],[T,W],
+      [T,W-T],[0,W-T],
+      [0,T],[T,T]
+    ];
+    const pts = poly.map(([x,y])=>`${ox+x},${oy+y}`).join(' ');
+
+    const p = [];
+    const dash = `${sw*4} ${sw*3}`;
+
+    p.push(`<defs>
+      ${hatchDef('h2', hsz)}
+      <clipPath id="clip2"><polygon points="${pts}"/></clipPath>
+    </defs>`);
+
+    p.push(`<polygon points="${pts}" fill="#faf6e8"/>`);
+
+    // 四條邊框帶（斜線填充，clipped 到多邊形內）
+    p.push(`<rect x="${ox+T}"   y="${oy}"     width="${L}"   height="${T}"     fill="url(#h2)" clip-path="url(#clip2)"/>`);
+    p.push(`<rect x="${ox+T}"   y="${oy+W-T}" width="${L}"   height="${T}"     fill="url(#h2)" clip-path="url(#clip2)"/>`);
+    p.push(`<rect x="${ox}"     y="${oy+T}"   width="${T}"   height="${W-2*T}" fill="url(#h2)" clip-path="url(#clip2)"/>`);
+    p.push(`<rect x="${ox+L+T}" y="${oy+T}"   width="${T}"   height="${W-2*T}" fill="url(#h2)" clip-path="url(#clip2)"/>`);
+
+    // 折線虛線
+    for (const [x1,y1,x2,y2] of [
+      [T,0,T,W],[L+T,0,L+T,W],[0,T,cutW,T],[0,W-T,cutW,W-T]
+    ])
+      p.push(`<line x1="${ox+x1}" y1="${oy+y1}" x2="${ox+x2}" y2="${oy+y2}" stroke="#90a468" stroke-width="${sw}" stroke-dasharray="${dash}" clip-path="url(#clip2)"/>`);
+
+    // 輪廓
+    p.push(`<polygon points="${pts}" fill="none" stroke="#3c4828" stroke-width="${sw*2}" stroke-linejoin="miter"/>`);
+
+    annotate(p, { axis:'col', annots:[
+      {x1:0, x2:T, val:fmt(T)}, {x1:T, x2:L+T, val:fmt(L)}, {x1:L+T, x2:L+2*T, val:fmt(T)}
+    ], ox, oy, cutW, cutH, fs, sw, side:'bottom' });
+
+    // row 標注從右邊緣延伸（y<T 或 y>W-T 時右邊緣縮進到 L+T）
+    const rightEdgeFn = y => (y <= T || y >= W-T) ? ox+L+T : ox+cutW;
+    annotate(p, { axis:'row', annots:[
+      {y1:0, y2:T, val:fmt(T)}, {y1:T, y2:W-T, val:fmt(W-2*T)}, {y1:W-T, y2:W, val:fmt(T)}
+    ], ox, oy, cutW, cutH, fs, sw, rightEdgeFn });
+
+    dimLines(p, {ox, oy, cutW, cutH, fs, sw, topWidth:true});
+
+    return `<svg viewBox="0 0 ${vbW} ${vbH}" width="100%" xmlns="http://www.w3.org/2000/svg">${p.join('\n')}</svg>`;
+  }
+
+  // ─── 左右紙板  T-shape with diagonal transitions ──────────────────────────────
+  function svgSidePanel(W, H, T) {
+    const cutW = W, cutH = 2*H + T;
+    const fs = cutW * 0.055, sw = cutW * 0.007;
+    const hsz = cutW * 0.055;
+
+    const pL = fs*5.5, pT = fs*4, pR = fs*6, pB = fs*3.2;
+    const ox = pL, oy = pT;
+    const vbW = pL+cutW+pR, vbH = pT+cutH+pB;
+
+    const poly = [
+      [2*T,0],[W-2*T,0],[W-2*T,H-T],[W,H+T],
+      [W,2*H+T],[0,2*H+T],[0,H+T],[2*T,H-T]
+    ];
+    const pts = poly.map(([x,y])=>`${ox+x},${oy+y}`).join(' ');
+
+    const p = [];
+    const dash = `${sw*4} ${sw*3}`;
+
+    p.push(`<defs>
+      ${hatchDef('h3', hsz)}
+      <clipPath id="clip3"><polygon points="${pts}"/></clipPath>
+    </defs>`);
+
+    p.push(`<polygon points="${pts}" fill="#faf6e8"/>`);
+
+    p.push(`<rect x="${ox+2*T}" y="${oy+H-T}" width="${W-4*T}" height="${2*T}" fill="url(#h3)" clip-path="url(#clip3)"/>`);
+    p.push(`<rect x="${ox}" y="${oy+H+T}" width="${2*T}" height="${H}" fill="url(#h3)" clip-path="url(#clip3)"/>`);
+    p.push(`<rect x="${ox+W-2*T}" y="${oy+H+T}" width="${2*T}" height="${H}" fill="url(#h3)" clip-path="url(#clip3)"/>`);
+    p.push(`<rect x="${ox+2*T}" y="${oy+2*H}" width="${W-4*T}" height="${T}" fill="url(#h3)" clip-path="url(#clip3)"/>`);
+
+    for (const [x1,y1,x2,y2] of [
+      [0,H-T, cutW,H-T],
+      [2*T,H+T, 2*T,2*H+T],
+      [W-2*T,H+T, W-2*T,2*H+T],
+      [0,H+T, cutW,H+T],
+      [0,2*H, cutW,2*H],
+    ])
+      p.push(`<line x1="${ox+x1}" y1="${oy+y1}" x2="${ox+x2}" y2="${oy+y2}" stroke="#90a468" stroke-width="${sw}" stroke-dasharray="${dash}" clip-path="url(#clip3)"/>`);
+
+    p.push(`<polygon points="${pts}" fill="none" stroke="#3c4828" stroke-width="${sw*2}" stroke-linejoin="miter"/>`);
+
+    annotate(p, { axis:'col', annots:[
+      {x1:0,     x2:2*T,   val:fmt(2*T)},
+      {x1:2*T,   x2:W-2*T, val:fmt(W-4*T)},
+      {x1:W-2*T, x2:W,     val:fmt(2*T)},
+    ], ox, oy, cutW, cutH, fs, sw, side:'bottom' });
+
+    const rightEdgeFn = y => {
+      if (y <= H-T) return ox + W - 2*T;
+      if (y <= H+T) return ox + (W-2*T) + (y - (H-T));
+      return ox + W;
+    };
+    annotate(p, { axis:'row', annots:[
+      {y1:0,   y2:H-T, val:fmt(H-T)},
+      {y1:H-T, y2:H+T, val:fmt(2*T)},
+      {y1:H+T, y2:2*H, val:fmt(H-T)},
+      {y1:2*H, y2:2*H+T,val:fmt(T)},
+    ], ox, oy, cutW, cutH, fs, sw, rightEdgeFn });
+
+    dimLines(p, {ox, oy, cutW, cutH, fs, sw, topWidth:true});
+
+    return `<svg viewBox="0 0 ${vbW} ${vbH}" width="100%" xmlns="http://www.w3.org/2000/svg">${p.join('\n')}</svg>`;
+  }
+
+  calc();
+</script>
+</body>
+</html>
