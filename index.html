@@ -37,19 +37,19 @@
         </div>
         <div class="grid grid-cols-2 gap-3">
           <label class="block">
-            <span id="label-L" class="text-xs font-medium" style="color:#7a8860">長 L（外部）</span>
+            <span id="label-L" class="text-xs font-medium" style="color:#7a8860">長 L</span>
             <input id="inp-L" type="number" value="100" min="1" oninput="calc()"
               class="mt-1 w-full rounded-xl px-3 py-2.5 text-lg font-bold focus:outline-none transition-colors"
               style="border:1.5px solid #c0c8a4;color:#3a3422;background:#faf6e8;" />
           </label>
           <label class="block">
-            <span id="label-W" class="text-xs font-medium" style="color:#7a8860">寬 W（外部）</span>
+            <span id="label-W" class="text-xs font-medium" style="color:#7a8860">寬 W</span>
             <input id="inp-W" type="number" value="50" min="1" oninput="calc()"
               class="mt-1 w-full rounded-xl px-3 py-2.5 text-lg font-bold focus:outline-none transition-colors"
               style="border:1.5px solid #c0c8a4;color:#3a3422;background:#faf6e8;" />
           </label>
           <label class="block">
-            <span id="label-H" class="text-xs font-medium" style="color:#7a8860">高 H（外部）</span>
+            <span id="label-H" class="text-xs font-medium" style="color:#7a8860">高 H</span>
             <input id="inp-H" type="number" value="60" min="1" oninput="calc()"
               class="mt-1 w-full rounded-xl px-3 py-2.5 text-lg font-bold focus:outline-none transition-colors"
               style="border:1.5px solid #c0c8a4;color:#3a3422;background:#faf6e8;" />
@@ -61,7 +61,6 @@
               style="border:1.5px solid #c0c8a4;color:#3a3422;background:#faf6e8;" />
           </label>
         </div>
-        <p class="text-xs text-center" style="color:#a8b890">單位一致即可（mm、cm 皆可）</p>
       </div>
 
       <!-- Conversion table -->
@@ -196,9 +195,9 @@
       btnExt.style.cssText = 'color:#8a9e78';
       btnExt.className = 'flex-1 py-2 rounded-lg font-semibold transition-all';
     }
-    document.getElementById('label-L').textContent = m === 'external' ? '長 L（外部）' : '長 IL（內部）';
-    document.getElementById('label-W').textContent = m === 'external' ? '寬 W（外部）' : '寬 IW（內部）';
-    document.getElementById('label-H').textContent = m === 'external' ? '高 H（外部）' : '高 IH（內部）';
+    document.getElementById('label-L').textContent = m === 'external' ? '長 L' : '長 IL';
+    document.getElementById('label-W').textContent = m === 'external' ? '寬 W' : '寬 IW';
+    document.getElementById('label-H').textContent = m === 'external' ? '高 H' : '高 IH';
     calc();
   }
 
@@ -321,7 +320,7 @@
       <line x1="${dX}" y1="${oy}" x2="${dX}" y2="${oy+cutH}" stroke="#302a18" stroke-width="${sw*1.3}"/>
       <line x1="${dX-tk}" y1="${oy}" x2="${dX+tk}" y2="${oy}" stroke="#302a18" stroke-width="${sw*1.3}"/>
       <line x1="${dX-tk}" y1="${oy+cutH}" x2="${dX+tk}" y2="${oy+cutH}" stroke="#302a18" stroke-width="${sw*1.3}"/>
-      <text x="${dX}" y="${oy+cutH/2}" font-size="${fs*1.1}" fill="#302a18" text-anchor="middle" dominant-baseline="middle" ${font} font-weight="700" transform="rotate(-90,${dX},${oy+cutH/2})">${fmt(cutH)}</text>
+      <text x="${dX-tk-fs*0.3}" y="${oy+cutH/2}" font-size="${fs*1.1}" fill="#302a18" text-anchor="end" dominant-baseline="middle" ${font} font-weight="700">${fmt(cutH)}</text>
     `);
   }
 
